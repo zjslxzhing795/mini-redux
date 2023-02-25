@@ -40,3 +40,33 @@ const User = () => {
 
 不能直接修改原始的 state 和直接调用原始的 setState
 需要封装一个函数来做这件事情，规范 state 的创建流程
+
+## dispatch 规范 setState 的流程
+
+原因：每次 setAppState 传入的都是 reduce(appState, {type: xx, payload: xx}),重复的东西很多,只有{type: xx, payload: xx}不一样
+
+```js
+setAppState(
+  reducer(appState, {
+    type: "updateUser",
+    payload: { name: e.target.value },
+  })
+)
+setAppState(
+  reducer(appState, {
+    type: "updateUser",
+    payload: { age: e.target.value },
+  })
+)
+```
+
+想要像如下方式调用
+
+```js
+dispatch({
+  type: "updateUser",
+  payload: { name: e.target.value },
+})
+```
+
+dispatch 访问不到 setAppState 怎么办？把 dispatch 写在一个 wrapper 里, wrapper 内使用 context 并定义 dispatch
