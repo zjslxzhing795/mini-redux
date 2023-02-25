@@ -32,11 +32,33 @@ const User = () => {
   const contextValue = useContext(appContext)
   return <div>User:{contextValue.appState.user.name}</div>
 }
+const reducer = (state, { type, payload }) => {
+  if (type === "updateUser") {
+    return {
+      ...state,
+      user: {
+        ...state.user,
+        ...payload,
+      },
+    }
+  } else {
+    return state
+  }
+}
 const UserModifier = () => {
   const { appState, setAppState } = useContext(appContext)
   const onChange = (e) => {
-    appState.user.name = e.target.value
-    setAppState({ ...appState })
+    /**
+     * 这里直接修改了原始state，创建过程不太规范
+     **/
+    // appState.user.name = e.target.value
+    // setAppState({ ...appState }) // 这里不能是appState，因为引用相同导致setState不成功
+    setAppState(
+      reducer(appState, {
+        type: "updateUser",
+        payload: { name: e.target.value },
+      })
+    )
   }
   return (
     <div>
