@@ -70,3 +70,10 @@ dispatch({
 ```
 
 dispatch 访问不到 setAppState 怎么办？把 dispatch 写在一个 wrapper 里, wrapper 内使用 context 并定义 dispatch
+
+## connect 来自 react-redux
+
+上一章节 dispatch 缺点：包裹了一个 Wrapper，使用 UserModifier 组件的时候要用到这个 Wrapper 而不是 UserModifier 本身，所以，任何想要使用 dispatch 方法的组件都需要创建一个 Wrapper,这显然不合理
+所以我们需要写一个函数去自动创建 wrapper
+connect 的作用就是将组件与全局状态连接起来，实现方式就是使用高阶组件：将组件传入一个函数，再返回包裹有 context 上下文数据（即全局状态）的高阶组件
+connect 由 react-redux 提供
