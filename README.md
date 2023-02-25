@@ -77,3 +77,16 @@ dispatch 访问不到 setAppState 怎么办？把 dispatch 写在一个 wrapper 
 所以我们需要写一个函数去自动创建 wrapper
 connect 的作用就是将组件与全局状态连接起来，实现方式就是使用高阶组件：将组件传入一个函数，再返回包裹有 context 上下文数据（即全局状态）的高阶组件
 connect 由 react-redux 提供
+
+## store + setState({}) + 发布订阅模式实现精准渲染
+
+以上会出现组件重复渲染问题，比如修改二儿子里的 input 数据，如下 5 个组件都执行了
+大儿子执行了 0.6417016355557932
+User 执行了 0.5618145576714255
+二儿子执行了 0.2789547950889919
+UserModifier 执行了 0.4553706330076448
+幺儿子执行了 0.5341419853632572
+
+useMemo 可以暂时解决这个问题，但不优雅
+
+造成重复渲染是因为使用了 useState 里的 setState，这里我们不使用它，而是创建一个 store,通过 store 里的 setState 来修改数据，结合 setState({})来通知 react 来更新视图,这时候只有使用到 connect 的组件才会被 dispatch 触发更新，但其他使用到这个数据的组件并没有触发更新，于是我们可以使用发布订阅模式批量更新（只通知订阅者,订阅者就是使用 connect 连接了全局状态的组件）,在 connect 里调用 store.discribe()，传入的 fn 就是 update({})
