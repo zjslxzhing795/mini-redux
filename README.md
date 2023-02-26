@@ -156,3 +156,32 @@ export const connect = (selector) => (Component) => {
   }
 }
 ```
+
+## MapDispatchertoProps connect(selector, MapDispatchertoProps)(组件)
+
+connect 的第二个参数，用来封装 dispatch
+
+```js
+const UserModifier = connect()(({ dispatch, state, children }) => {
+  const onChange = (e) => {
+    dispatch({
+      type: "updateUser",
+      payload: { name: e.target.value },
+    })
+  }
+})
+```
+
+```js
+const UserModifier = connect(null, (dispatch) => {
+  return {
+    updateUser: (attrs) => dispatch({ type: "updateUser", payload: attrs }),
+  }
+})(({ updateUser, state, children }) => {
+  const onChange = (e) => {
+    updateUser({
+      name: e.target.value,
+    })
+  }
+})
+```

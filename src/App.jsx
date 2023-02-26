@@ -96,7 +96,13 @@ const _UserModifier = ({ dispatch, state }) => {
 }
 // const Wrapper = createWrapper(UserModifier) Wrapper命名改为UserModifier createWrapper改为connect
 // const UserModifier = connect(_UserModifier) 将_UserModifier替换，props增加childeen
-const UserModifier = connect()(({ dispatch, state, children }) => {
+const UserModifier = connect(null, (dispatch) => {
+  return {
+    updateUser: (attrs) => {
+      dispatch({ type: "updateUser", payload: attrs })
+    },
+  }
+})(({ updateUser, state, children }) => {
   console.log("UserModifier执行了" + Math.random())
   // const { appState, setAppState } = useContext(appContext)
   const onChange = (e) => {
@@ -116,9 +122,15 @@ const UserModifier = connect()(({ dispatch, state, children }) => {
     //   })
     // )
 
-    dispatch({
-      type: "updateUser",
-      payload: { name: e.target.value },
+    /**
+     * 2. dispatch通过connect高阶函数返回
+     */
+    // dispatch({
+    //   type: "updateUser",
+    //   payload: { name: e.target.value },
+    // })
+    updateUser({
+      name: e.target.value,
     })
   }
   return (

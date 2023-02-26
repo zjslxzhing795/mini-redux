@@ -32,7 +32,7 @@ const changed = (oldState, newState) => {
   return changed
 }
 
-export const connect = (selector) => (Component) => {
+export const connect = (selector, dispatchSelector) => (Component) => {
   return (props) => {
     const { state, setState } = useContext(appContext)
     const [, update] = useState({}) // 目的是为了更新视图
@@ -58,7 +58,10 @@ export const connect = (selector) => (Component) => {
       setState(reducer(state, action))
       // update({})
     }
-    return <Component {...props} {...data} dispatch={dispatch}></Component>
+    const dispatchers = dispatchSelector
+      ? dispatchSelector(dispatch)
+      : { dispatch }
+    return <Component {...props} {...data} {...dispatchers}></Component>
   }
 }
 
