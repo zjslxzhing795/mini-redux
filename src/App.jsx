@@ -118,7 +118,23 @@ const _UserModifier = ({ dispatch, state }) => {
 }
 // const Wrapper = createWrapper(UserModifier) Wrapper命名改为UserModifier createWrapper改为connect
 // const UserModifier = connect(_UserModifier) 将_UserModifier替换，props增加childeen
-const UserModifier = connectToUser(({ updateUser, user, children }) => {
+
+const ajax = () => {
+  return new Promise((resolve, reject) => {
+    setTimeout(() => {
+      resolve({ data: { name: "3秒后的frank" } })
+    }, 3000)
+  })
+}
+const fetchUser = (dispatch) => {
+  ajax("/user").then((response) => {
+    dispatch({ type: "updateUser", payload: response.data })
+  })
+}
+const UserModifier = connect(
+  null,
+  null
+)(({ dispatch, state, children }) => {
   console.log("UserModifier执行了" + Math.random())
   // const { appState, setAppState } = useContext(appContext)
   const onChange = (e) => {
@@ -142,18 +158,23 @@ const UserModifier = connectToUser(({ updateUser, user, children }) => {
      * 2. dispatch通过connect高阶函数返回
      * 如果不使用updateUser精确获取userDispatch的话，只需要connect(userSelector, null)，然后调用下面的dispatch方法即可
      */
-    // dispatch({
-    //   type: "updateUser",
-    //   payload: { name: e.target.value },
-    // })
-    updateUser({
-      name: e.target.value,
+    dispatch({
+      type: "updateUser",
+      payload: { name: e.target.value },
     })
+    // updateUser({
+    //   name: e.target.value,
+    // })
+  }
+  const onClick = (e) => {
+    // fetchUser(dispatch) // 这样其实就可以完成，但是这么做不符合直觉，应为dispatch(fetchUser)
+    dispatch(fetchUser) // fetchUser不是{type: xx, payload: xx}这样的对象，而是一个函数，所以要实现支持异步，则需要让dispatch支持函数
   }
   return (
     <div>
       {children}
-      <input value={user.name} onChange={onChange} />
+      <input value={state.user.name} onChange={onChange} />
+      <button onClick={onClick}>异步获取user</button>
     </div>
   )
 })

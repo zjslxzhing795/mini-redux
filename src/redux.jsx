@@ -31,6 +31,18 @@ const store = {
   // },
 }
 
+// 改写dispatch使其支持异步action
+let dispatch = store.dispatch
+const prevDispatch = dispatch
+dispatch = (action) => {
+  if (typeof action === "function") {
+    // 这里为什么是dispatch而不是prevDispatch？因为有可能用户在使用dispatch的时候这么用的：dispatch(dispatch(fn))
+    action(dispatch)
+  } else {
+    prevDispatch(action)
+  }
+}
+
 export const createStore = (_reducer, initState) => {
   state = initState
   reducer = _reducer
@@ -69,8 +81,8 @@ export const connect = (selector, dispatchSelector) => (Component) => {
       [selector]
     )
     const dispatchers = dispatchSelector
-      ? dispatchSelector(store.dispatch)
-      : { dispatch: store.dispatch }
+      ? dispatchSelector(dispatch)
+      : { dispatch }
     return <Component {...props} {...data} {...dispatchers}></Component>
   }
 }

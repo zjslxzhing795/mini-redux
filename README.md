@@ -238,3 +238,41 @@ export const Provider = ({ store, children }) => {
 将 getState 写入 store，
 将 state、reducer、listener、setState 提取到外部
 将 dispatch 写入 store
+
+## redux 对异步 action 的支持
+
+直观写法如下
+
+```js
+const onClick = (e) => {
+  ajax("/user").then((response) => {
+    dispatch({ type: "updateUser", payload: response.data })
+  })
+}
+```
+
+提取函数后如下
+
+```js
+const fetchUser = (dispatch) => {
+  ajax("/user").then((response) => {
+    dispatch({ type: "updateUser", payload: response.data })
+  })
+}
+const onClick = (e) => {
+  fetchUser(dispatch)
+}
+```
+
+fetchUser(dispatch)这种写法不符合常规写法，应为 dispatch(fetchUser),如何做到？
+
+```js
+let prevDispatch = dispatch
+// 重写dispatch
+dispatch = (fn) => {
+  fn(prevDispatch)
+}
+dispatch(fetchUser)
+```
+
+由于 fetchUser 是一个函数，所以可以在 dispatch 上做文章，当传入的 action 为函数时，action(dispatch)
