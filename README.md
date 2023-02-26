@@ -239,7 +239,7 @@ export const Provider = ({ store, children }) => {
 将 state、reducer、listener、setState 提取到外部
 将 dispatch 写入 store
 
-## redux 对异步 action 的支持
+## redux 对异步 action 的支持：异步函数里调用 dispatch
 
 直观写法如下
 
@@ -276,3 +276,34 @@ dispatch(fetchUser)
 ```
 
 由于 fetchUser 是一个函数，所以可以在 dispatch 上做文章，当传入的 action 为函数时，action(dispatch)
+实现方式如下：
+
+```js
+let dispatch = store.dispatch
+const prevDispatch = dispatch
+dispatch = (action) => {
+  if (typeof action === "function") {
+    // 这里为什么是dispatch而不是prevDispatch？因为有可能用户在使用dispatch的时候这么用的：dispatch(dispatch(fn))
+    action(dispatch)
+  } else {
+    prevDispatch(action)
+  }
+}
+```
+
+## redux 对异步 action 的支持：异步写在 payload 里
+
+同样是重写 dispatch
+
+```js
+dispatch = (action) => {
+  if (action.payload instanceof Promise) {
+    action.payload.then((data) => {
+      // 这里不使用prevDispatch2的原因是因为有可能data又是一个promise
+      dispatch({ ...action, payload: data })
+    })
+  } else {
+    prevDispatch2(action)
+  }
+}
+```

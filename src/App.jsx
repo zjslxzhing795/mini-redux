@@ -131,6 +131,9 @@ const fetchUser = (dispatch) => {
     dispatch({ type: "updateUser", payload: response.data })
   })
 }
+const fetchUserPromise = () => {
+  return ajax("/user").then((response) => response.data)
+}
 const UserModifier = connect(
   null,
   null
@@ -167,8 +170,13 @@ const UserModifier = connect(
     // })
   }
   const onClick = (e) => {
-    // fetchUser(dispatch) // 这样其实就可以完成，但是这么做不符合直觉，应为dispatch(fetchUser)
-    dispatch(fetchUser) // fetchUser不是{type: xx, payload: xx}这样的对象，而是一个函数，所以要实现支持异步，则需要让dispatch支持函数
+    // fetchUser(dispatch) // 1.0版本 这样其实就可以完成，但是这么做不符合直觉，应为dispatch(fetchUser)
+    // dispatch(fetchUser) // 2.0版本 fetchUser不是{type: xx, payload: xx}这样的对象，而是一个函数，所以要实现支持异步，则需要让dispatch支持函数
+    // 3.0版本 异步放payload里
+    dispatch({
+      type: "updateUser",
+      payload: fetchUserPromise(),
+    })
   }
   return (
     <div>

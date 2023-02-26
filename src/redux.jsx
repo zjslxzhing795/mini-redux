@@ -31,7 +31,7 @@ const store = {
   // },
 }
 
-// 改写dispatch使其支持异步action
+// 改写dispatch使其支持函数 即dispatch(fetchUser) fetchUser为函数这种调用方式
 let dispatch = store.dispatch
 const prevDispatch = dispatch
 dispatch = (action) => {
@@ -40,6 +40,20 @@ dispatch = (action) => {
     action(dispatch)
   } else {
     prevDispatch(action)
+  }
+}
+
+// 改写dispatch使其支持promise 即action为promise
+const prevDispatch2 = dispatch
+
+dispatch = (action) => {
+  if (action.payload instanceof Promise) {
+    action.payload.then((data) => {
+      // 这里不使用prevDispatch2的原因是因为有可能data又是一个promise
+      dispatch({ ...action, payload: data })
+    })
+  } else {
+    prevDispatch2(action)
   }
 }
 
