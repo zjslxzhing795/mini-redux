@@ -307,3 +307,30 @@ dispatch = (action) => {
   }
 }
 ```
+
+## redux 中间件 middleware
+
+中间件的使用方式，在 createStore 里传入第三个参数 applyMiddleware,
+applyMiddleware 里的 middleware 倒序执行，
+而 middleware 就是一个函数，是用来修改 dispatch 的
+
+```js
+const store = createStore(
+  reducer,
+  initState,
+  applyMiddleware(reduxThunk, reduxPromise)
+)
+```
+
+支持函数--对应中间件 redux-thunk（源码可以看一下，特别少，和上面写的类似）
+支持 payload 为 promsie--对应中间件 redux-promise（源码和上面写的类似）
+
+**面试官问：怎么通过中间件让 redux 支持异步？**
+回答：
+有两个著名的中间件
+一个是 redux-thunk，它发现如果 action 时函数，就用这个函数去调用 dispatch,如果不是就进入下一个中间件
+一个是 redux-promise，它发现如果 payload 是 promise，就在 payload 后添加 then,将 promise 的结果给到 payload 并覆盖原来的 payload
+
+可以看看 applyMiddleware 如何倒序执行 middleware 的
+
+作业：写一篇博客，讲讲各个 api 的使用 store、state、dispatch、connect、reducer、provider、中间件 分别干什么的
