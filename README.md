@@ -90,3 +90,29 @@ UserModifier 执行了 0.4553706330076448
 useMemo 可以暂时解决这个问题，但不优雅
 
 造成重复渲染是因为使用了 useState 里的 setState，这里我们不使用它，而是创建一个 store,通过 store 里的 setState 来修改数据，结合 setState({})来通知 react 来更新视图,这时候只有使用到 connect 的组件才会被 dispatch 触发更新，但其他使用到这个数据的组件并没有触发更新，于是我们可以使用发布订阅模式批量更新（只通知订阅者,订阅者就是使用 connect 连接了全局状态的组件）,在 connect 里调用 store.discribe()，传入的 fn 就是 update({})
+
+## redux 乍现
+
+将 context store connect reducer 提取到单独的 redux.jsx 文件
+为什么是 jsx 不是 js?
+
+## selector 来自 react-redux
+
+痛点：{state.user.name}想要获取到 name，可能会需要非常多的层级，例如 state.x.y.z.name
+
+```js
+const User = connect(({ state }) => {
+  console.log("User执行了" + Math.random())
+  return <div>User:{state.user.name}</div>
+})
+```
+
+解决方法是在 connect 调用前增加一层函数调用(高阶函数)，去返回当前的 state，然后传入到组件内
+
+```js
+connect((state) => {
+  return { user: state.user }
+})(({ user }) => {
+  return <div>User:{user.name}</div>
+})
+```

@@ -1,4 +1,4 @@
-import React, { useState, useContext, useMemo, useEffect } from "react"
+import React from "react"
 import { appContext, store, connect } from "./redux"
 
 export const App = () => {
@@ -47,10 +47,12 @@ const 幺儿子 = () => {
   return <section>幺儿子</section>
 }
 
-const User = connect(({ dispatch, state }) => {
+const User = connect((state) => {
+  return { user: state.user }
+})(({ dispatch, user }) => {
   console.log("User执行了" + Math.random())
   // const { state } = useContext(appContext)
-  return <div>User:{state.user.name}</div>
+  return <div>User:{user.name}</div>
 })
 
 const _UserModifier = ({ dispatch, state }) => {
@@ -85,7 +87,7 @@ const _UserModifier = ({ dispatch, state }) => {
 }
 // const Wrapper = createWrapper(UserModifier) Wrapper命名改为UserModifier createWrapper改为connect
 // const UserModifier = connect(_UserModifier) 将_UserModifier替换，props增加childeen
-const UserModifier = connect(({ dispatch, state, children }) => {
+const UserModifier = connect()(({ dispatch, state, children }) => {
   console.log("UserModifier执行了" + Math.random())
   // const { appState, setAppState } = useContext(appContext)
   const onChange = (e) => {

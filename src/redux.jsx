@@ -21,10 +21,11 @@ export const store = {
   },
 }
 
-export const connect = (Component) => {
+export const connect = (selector) => (Component) => {
   return (props) => {
     const { state, setState } = useContext(appContext)
     const [, update] = useState({}) // 目的是为了更新视图
+    const data = selector ? selector(state) : { state }
     useEffect(() => {
       store.subscribe(() => {
         update({})
@@ -36,7 +37,7 @@ export const connect = (Component) => {
       setState(reducer(state, action))
       // update({})
     }
-    return <Component {...props} dispatch={dispatch} state={state}></Component>
+    return <Component {...props} {...data} dispatch={dispatch}></Component>
   }
 }
 
