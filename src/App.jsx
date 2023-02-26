@@ -1,24 +1,6 @@
 import React, { useState, useContext, useMemo, useEffect } from "react"
+import { appContext, store, connect } from "./redux"
 
-const appContext = React.createContext(null)
-const store = {
-  state: {
-    user: { name: "frank", age: 18 },
-  },
-  setState(newState) {
-    store.state = newState
-    store.listeners.map((fn) => fn(store.state))
-  },
-  listeners: [],
-  subscribe(fn) {
-    store.listeners.push(fn)
-    // 返回取消订阅函数
-    return () => {
-      const index = store.listeners.indexOf(fn)
-      store.listeners.splice(index, 1)
-    }
-  },
-}
 export const App = () => {
   // 调用这里的setAppState会导致所有组件都更新，解决办法是不使用它，创建一个store，调用store里的setState方法，用setState({})的方式通知react更新视图
   // const [appState, setAppState] = useState({
@@ -64,42 +46,13 @@ const 幺儿子 = () => {
   console.log("幺儿子执行了" + Math.random())
   return <section>幺儿子</section>
 }
-const connect = (Component) => {
-  return (props) => {
-    const { state, setState } = useContext(appContext)
-    const [, update] = useState({}) // 目的是为了更新视图
-    useEffect(() => {
-      store.subscribe(() => {
-        update({})
-      })
-    }, [])
-    const dispatch = (action) => {
-      // dispatch访问不到setAppState，因为我们把setAppState放到context里了
-      // 想要让dispatch可以访问setAppState，可以声明一个Wrapper，在wrapper里返回组件，组件内可以访问context,Wrapper内定义dispatch
-      setState(reducer(state, action))
-      // update({})
-    }
-    return <Component {...props} dispatch={dispatch} state={state} />
-  }
-}
+
 const User = connect(({ dispatch, state }) => {
   console.log("User执行了" + Math.random())
   // const { state } = useContext(appContext)
   return <div>User:{state.user.name}</div>
 })
-const reducer = (state, { type, payload }) => {
-  if (type === "updateUser") {
-    return {
-      ...state,
-      user: {
-        ...state.user,
-        ...payload,
-      },
-    }
-  } else {
-    return state
-  }
-}
+
 const _UserModifier = ({ dispatch, state }) => {
   // const { appState, setAppState } = useContext(appContext)
   const onChange = (e) => {
