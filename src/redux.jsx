@@ -1,28 +1,39 @@
-import React, { useState, useContext, useEffect } from "react"
+import React, { useState, useEffect } from "react"
 
 const appContext = React.createContext(null)
-
+let state
+let reducer // 避免放store里被人修改
+let listeners = []
+const setState = (newState) => {
+  state = newState
+  listeners.map((fn) => fn(state))
+}
 const store = {
-  state: undefined,
-  reducer: undefined,
-  setState(newState) {
-    store.state = newState
-    store.listeners.map((fn) => fn(store.state))
+  getState() {
+    return state
   },
-  listeners: [],
   subscribe(fn) {
-    store.listeners.push(fn)
+    listeners.push(fn)
     // 返回取消订阅函数
     return () => {
-      const index = store.listeners.indexOf(fn)
-      store.listeners.splice(index, 1)
+      const index = listeners.indexOf(fn)
+      listeners.splice(index, 1)
     }
   },
+  dispatch(action) {
+    // dispatch访问不到setAppState，因为我们把setAppState放到context里了
+    // 想要让dispatch可以访问setAppState，可以声明一个Wrapper，在wrapper里返回组件，组件内可以访问context,Wrapper内定义dispatch
+    setState(reducer(state, action))
+    // update({})
+  },
+  // repleceReducer(newReducer) {
+  //   reducer = newReducer
+  // },
 }
 
-export const createStore = (reducer, initState) => {
-  store.state = initState
-  store.reducer = reducer
+export const createStore = (_reducer, initState) => {
+  state = initState
+  reducer = _reducer
   return store
 }
 
@@ -41,7 +52,7 @@ const changed = (oldState, newState) => {
 
 export const connect = (selector, dispatchSelector) => (Component) => {
   return (props) => {
-    const { state, setState } = useContext(appContext)
+    // const { } = useContext(appContext) // 这里也可以从store里取
     const [, update] = useState({}) // 目的是为了更新视图
     const data = selector ? selector(state) : { state }
     useEffect(
@@ -50,24 +61,16 @@ export const connect = (selector, dispatchSelector) => (Component) => {
         // 以下函数的值就是一个取消订阅函数，其作为返回值，会在useEffect调用之前执行
         store.subscribe(() => {
           // 调用dispatch改的是store上的数据，所以store.xx得到的是最新的数据
-          const newData = selector
-            ? selector(store.state)
-            : { state: store.state }
+          const newData = selector ? selector(state) : { state }
           if (changed(data, newData)) {
             update({})
           }
         }),
       [selector]
     )
-    const dispatch = (action) => {
-      // dispatch访问不到setAppState，因为我们把setAppState放到context里了
-      // 想要让dispatch可以访问setAppState，可以声明一个Wrapper，在wrapper里返回组件，组件内可以访问context,Wrapper内定义dispatch
-      setState(store.reducer(state, action))
-      // update({})
-    }
     const dispatchers = dispatchSelector
-      ? dispatchSelector(dispatch)
-      : { dispatch }
+      ? dispatchSelector(store.dispatch)
+      : { dispatch: store.dispatch }
     return <Component {...props} {...data} {...dispatchers}></Component>
   }
 }

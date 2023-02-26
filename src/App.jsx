@@ -140,6 +140,7 @@ const UserModifier = connectToUser(({ updateUser, user, children }) => {
 
     /**
      * 2. dispatch通过connect高阶函数返回
+     * 如果不使用updateUser精确获取userDispatch的话，只需要connect(userSelector, null)，然后调用下面的dispatch方法即可
      */
     // dispatch({
     //   type: "updateUser",

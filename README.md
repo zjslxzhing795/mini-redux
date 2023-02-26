@@ -231,3 +231,10 @@ export const Provider = ({ store, children }) => {
 1. 从上下文或者 store 里拿到 state 和 setState
 2. 根据 selector 和 dispatchSelector/mapDispatchToProps 得到具体的数据和 dispatcher
 3. 对 store 进行订阅，一旦数据发生变化则调用 update 通知更新
+
+## redux 组件重构
+
+参考 redux 官方
+将 getState 写入 store，
+将 state、reducer、listener、setState 提取到外部
+将 dispatch 写入 store
