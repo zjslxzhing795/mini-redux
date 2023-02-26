@@ -1,12 +1,10 @@
 import React, { useState, useContext, useEffect } from "react"
 
-export const appContext = React.createContext(null)
+const appContext = React.createContext(null)
 
-export const store = {
-  state: {
-    user: { name: "frank", age: 18 },
-    group: { name: "前端组" },
-  },
+const store = {
+  state: undefined,
+  reducer: undefined,
   setState(newState) {
     store.state = newState
     store.listeners.map((fn) => fn(store.state))
@@ -22,6 +20,15 @@ export const store = {
   },
 }
 
+export const createStore = (reducer, initState) => {
+  store.state = initState
+  store.reducer = reducer
+  return store
+}
+
+export const Provider = ({ store, children }) => {
+  return <appContext.Provider value={store}>{children}</appContext.Provider>
+}
 const changed = (oldState, newState) => {
   let changed = false
   for (let key in oldState) {
@@ -55,26 +62,12 @@ export const connect = (selector, dispatchSelector) => (Component) => {
     const dispatch = (action) => {
       // dispatch访问不到setAppState，因为我们把setAppState放到context里了
       // 想要让dispatch可以访问setAppState，可以声明一个Wrapper，在wrapper里返回组件，组件内可以访问context,Wrapper内定义dispatch
-      setState(reducer(state, action))
+      setState(store.reducer(state, action))
       // update({})
     }
     const dispatchers = dispatchSelector
       ? dispatchSelector(dispatch)
       : { dispatch }
     return <Component {...props} {...data} {...dispatchers}></Component>
-  }
-}
-
-const reducer = (state, { type, payload }) => {
-  if (type === "updateUser") {
-    return {
-      ...state,
-      user: {
-        ...state.user,
-        ...payload,
-      },
-    }
-  } else {
-    return state
   }
 }

@@ -193,3 +193,25 @@ const UserModifier = connect(null, (dispatch) => {
 每个组件都可以调用 connect 连接全局状态
 我们可以将 **MapSelectorToProps** 和 **MapDispatcherToProps** 抽取到单独的文件进行管理，
 然后将 **connect(MapSelectorToProps,MapDispatcherToProps)**整体抽取出来单独管理
+
+## 封装 createStore 和 provider
+
+以上步骤最终得到的 store 里的数据是写死的，reducer 也是写死的
+可以把 state 和 reducer 作为参数传入 createStore，得到 store
+以下写法也可以完善
+
+```js
+<appContext.Provider value={store}>
+  <大儿子 />
+  <二儿子 />
+  <幺儿子 />
+</appContext.Provider>
+```
+
+可以把 appContext 从 redux 里去掉，取而代之将其封装在 Provider 里
+
+```js
+export const Provider = ({ store, children }) => {
+  return <appContext.Provider value={store}>{children}</appContext.Provider>
+}
+```

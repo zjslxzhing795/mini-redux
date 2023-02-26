@@ -1,7 +1,25 @@
 import React from "react"
-import { appContext, store, connect } from "./redux"
+import { Provider, createStore, connect } from "./redux"
 import { connectToUser } from "./connectors"
 
+const initState = {
+  user: { name: "frank", age: 18 },
+  group: { name: "前端组" },
+}
+const reducer = (state, { type, payload }) => {
+  if (type === "updateUser") {
+    return {
+      ...state,
+      user: {
+        ...state.user,
+        ...payload,
+      },
+    }
+  } else {
+    return state
+  }
+}
+const store = createStore(reducer, initState)
 export const App = () => {
   // 调用这里的setAppState会导致所有组件都更新，解决办法是不使用它，创建一个store，调用store里的setState方法，用setState({})的方式通知react更新视图
   // const [appState, setAppState] = useState({
@@ -14,12 +32,17 @@ export const App = () => {
   //   return <幺儿子 />
   // }, [])
   return (
-    <appContext.Provider value={store}>
+    // <appContext.Provider value={store}>
+    //   <大儿子 />
+    //   <二儿子 />
+    //   <幺儿子 />
+    //   {/* {x} */}
+    // </appContext.Provider>
+    <Provider store={store}>
       <大儿子 />
       <二儿子 />
       <幺儿子 />
-      {/* {x} */}
-    </appContext.Provider>
+    </Provider>
   )
 }
 const 大儿子 = () => {
