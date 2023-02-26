@@ -116,3 +116,43 @@ connect((state) => {
   return <div>User:{user.name}</div>
 })
 ```
+
+## selector 实现精准渲染
+
+**组件只在自己的数据变化时才 render**
+痛点：store 内数据如下，幺儿子引入 group,user 变化时，幺儿子也更新了，那么如何确保这种情况下幺儿子不去更新呢？
+
+```js
+state: {
+    user: { name: "frank", age: 18 },
+    group: { name: "前端组" },
+  },
+```
+
+解决办法是在订阅的时候判断数据是否变化，未变化则不更新
+
+```js
+const changed = (oldState, newState) => {}
+
+export const connect = (selector) => (Component) => {
+  return (props) => {
+    ...
+    useEffect(
+      () =>
+        // 注意这里最好取消订阅 否则在selector变化时出现重复订阅
+        // 以下函数的值就是一个取消订阅函数，其作为返回值，会在useEffect调用之前执行
+        store.subscribe(() => {
+          // 调用dispatch改的是store上的数据，所以store.xx得到的是最新的数据
+          const newData = selector
+            ? selector(store.state)
+            : { state: store.state }
+          if (changed(data, newData)) {
+            update({})
+          }
+        }),
+      [selector]
+    )
+    ...
+  }
+}
+```

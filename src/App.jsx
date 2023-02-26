@@ -42,10 +42,19 @@ const 二儿子 = () => {
   )
 }
 
-const 幺儿子 = () => {
+const 幺儿子 = connect((state) => {
+  return {
+    group: state.group,
+  }
+})(({ group }) => {
   console.log("幺儿子执行了" + Math.random())
-  return <section>幺儿子</section>
-}
+  return (
+    <section>
+      幺儿子
+      <div>group:{group.name}</div>
+    </section>
+  )
+})
 
 const User = connect((state) => {
   return { user: state.user }
