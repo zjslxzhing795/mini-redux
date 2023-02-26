@@ -185,3 +185,11 @@ const UserModifier = connect(null, (dispatch) => {
   }
 })
 ```
+
+## connect 的意义：为什么是高阶组件而不是直接传递 MapSelectorToProps、MapDispatcherToProps、Component 这 3 个参数？
+
+**为什么是 connect(MapSelectorToProps,MapDispatcherToProps)(Component)？**
+**MapSelectorToProps**用来封装读（获取 state）,**MapDispatcherToProps**用来封装写（修改 store 里的 state，setState({})通知更新）
+每个组件都可以调用 connect 连接全局状态
+我们可以将 **MapSelectorToProps** 和 **MapDispatcherToProps** 抽取到单独的文件进行管理，
+然后将 **connect(MapSelectorToProps,MapDispatcherToProps)**整体抽取出来单独管理

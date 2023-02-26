@@ -1,5 +1,6 @@
 import React from "react"
 import { appContext, store, connect } from "./redux"
+import { connectToUser } from "./connectors"
 
 export const App = () => {
   // 调用这里的setAppState会导致所有组件都更新，解决办法是不使用它，创建一个store，调用store里的setState方法，用setState({})的方式通知react更新视图
@@ -56,9 +57,7 @@ const 幺儿子 = connect((state) => {
   )
 })
 
-const User = connect((state) => {
-  return { user: state.user }
-})(({ dispatch, user }) => {
+const User = connectToUser(({ dispatch, user }) => {
   console.log("User执行了" + Math.random())
   // const { state } = useContext(appContext)
   return <div>User:{user.name}</div>
@@ -96,13 +95,7 @@ const _UserModifier = ({ dispatch, state }) => {
 }
 // const Wrapper = createWrapper(UserModifier) Wrapper命名改为UserModifier createWrapper改为connect
 // const UserModifier = connect(_UserModifier) 将_UserModifier替换，props增加childeen
-const UserModifier = connect(null, (dispatch) => {
-  return {
-    updateUser: (attrs) => {
-      dispatch({ type: "updateUser", payload: attrs })
-    },
-  }
-})(({ updateUser, state, children }) => {
+const UserModifier = connectToUser(({ updateUser, user, children }) => {
   console.log("UserModifier执行了" + Math.random())
   // const { appState, setAppState } = useContext(appContext)
   const onChange = (e) => {
@@ -136,7 +129,7 @@ const UserModifier = connect(null, (dispatch) => {
   return (
     <div>
       {children}
-      <input value={state.user.name} onChange={onChange} />
+      <input value={user.name} onChange={onChange} />
     </div>
   )
 })
