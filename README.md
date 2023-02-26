@@ -215,3 +215,19 @@ export const Provider = ({ store, children }) => {
   return <appContext.Provider value={store}>{children}</appContext.Provider>
 }
 ```
+
+## redux 各种概念总结
+
+如图 redux 概念总结：**store state connect**
+首先有一个 app，它里面有很多组件，需要让每一个组件可以访问到全局 state
+全局 state 我们放在 store 里
+组件和 store 如何连接呢？react-redux 提供了一个 api 叫 connect
+连接组件后做什么呢？两件事情，一个用来读（从组件属性里取 state）,一个用来写（组件属性里取 dispatch）
+如果想要读写更精确呢？可以传入两个参数，一个是 selector，可以取到 state 里某个精确的值；一个是 mapDispatchToProps，可以得到如 updateUser 之类的 api
+
+**connect 怎么做的呢？**
+首先对组件进行了一层封装，封装了一个高阶组件，主要做了 3 件事情
+
+1. 从上下文或者 store 里拿到 state 和 setState
+2. 根据 selector 和 dispatchSelector/mapDispatchToProps 得到具体的数据和 dispatcher
+3. 对 store 进行订阅，一旦数据发生变化则调用 update 通知更新
